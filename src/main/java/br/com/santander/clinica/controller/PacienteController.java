@@ -19,8 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.santander.clinica.model.Paciente;
+import br.com.santander.clinica.model.dto.MedicoDto;
 import br.com.santander.clinica.model.dto.PacienteDto;
 import br.com.santander.clinica.model.dto.PacienteInputDto;
+import br.com.santander.clinica.service.EspecialidadeService;
+import br.com.santander.clinica.service.MedicoService;
 import br.com.santander.clinica.service.PacienteService;
 
 @RestController
@@ -28,10 +31,15 @@ import br.com.santander.clinica.service.PacienteService;
 public class PacienteController {
 
 	private final PacienteService pacienteService;
+	private final MedicoService medicoService;
+	private final EspecialidadeService especialidadeService;
 
-	public PacienteController(PacienteService pacienteService) {
+	public PacienteController(PacienteService pacienteService, MedicoService medicoService,
+			EspecialidadeService especialidadeService) {
 		super();
 		this.pacienteService = pacienteService;
+		this.medicoService = medicoService;
+		this.especialidadeService = especialidadeService;
 	}
 
 	@PostMapping
@@ -66,16 +74,16 @@ public class PacienteController {
 		return ResponseEntity.ok(dtos);
 	}
 
-//	@GetMapping("/especialidades/{id}")
-//	public ResponseEntity<?> buscarPorEspecialidade(@PathVariable Integer id) {
-//		List<PacienteDto> dtos = pacienteService.buscarPorEspecialidade(especialidadeService.buscarPorId(id)).stream()
-//				.map(m -> {
-//					PacienteDto dto = PacienteDto.converte(m);
-//					Link self = linkTo(PacienteController.class).slash(m.getId()).withSelfRel();
-//					Link pacientes = linkTo(PacienteController.class).withRel("pacientes");
-//					dto.add(self).add(pacientes);
-//					return dto;
-//				}).collect(Collectors.toList());
-//		return ResponseEntity.ok(dtos);
-//	}
+	@GetMapping("medicos/especialidades/{id}")
+	public ResponseEntity<?> buscarPorEspecialidade(@PathVariable Integer id) {
+		List<MedicoDto> dtos = medicoService.buscarPorEspecialidade(especialidadeService.buscarPorId(id)).stream()
+				.map(m -> {
+					MedicoDto dto = MedicoDto.converte(m);
+					Link self = linkTo(MedicoController.class).slash(m.getId()).withSelfRel();
+					Link medicos = linkTo(MedicoController.class).withRel("medicos");
+					dto.add(self).add(medicos);
+					return dto;
+				}).collect(Collectors.toList());
+		return ResponseEntity.ok(dtos);
+	}
 }
