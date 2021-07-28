@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.santander.clinica.model.Medico;
+import br.com.santander.clinica.model.dto.AgendaDto;
+import br.com.santander.clinica.model.dto.AgendaInputDto;
 import br.com.santander.clinica.model.dto.MedicoDto;
 import br.com.santander.clinica.model.dto.MedicoInputDto;
 import br.com.santander.clinica.service.EspecialidadeService;
@@ -47,6 +49,16 @@ public class MedicoController {
 		Link especialidade = linkTo(EspecialidadeController.class).slash(medicoSalvo.getEspecialidade().getid()).withRel("especialidades");
 		MedicoDto medicoDto = MedicoDto.converte(medicoSalvo);
 		return ResponseEntity.created(uri).body(medicoDto.add(self).add(medicos).add(especialidade));
+	}
+	
+	@PostMapping("/agenda/{idMedico}")
+	public ResponseEntity<?> liberarAgenda(@RequestBody @Valid AgendaInputDto agendaInputDto, UriComponentsBuilder uriBuilder) {
+		AgendaDto agendaDto = medicoService.liberarAgenda(agendaInputDto);
+		URI uri = uriBuilder.path("/medicos/agenda/{id}").buildAndExpand(agendaInputDto.getIdMedico()).toUri();
+		Link self = linkTo(MedicoController.class).slash(agendaInputDto.getIdMedico()).withSelfRel();
+		Link agenda = linkTo(AgendaController.class).withRel("agenda");
+		agendaDto.add(self);
+		return ResponseEntity.created(uri).body(agendaDto) ;
 	}
 	
 	@GetMapping("/{id}")

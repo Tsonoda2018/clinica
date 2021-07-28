@@ -4,6 +4,8 @@ import java.util.List;
 
 import br.com.santander.clinica.model.Especialidade;
 import br.com.santander.clinica.model.Medico;
+import br.com.santander.clinica.model.dto.AgendaDto;
+import br.com.santander.clinica.model.dto.AgendaInputDto;
 
 public interface MedicoService {
 	Medico salvar(Medico medico);
@@ -15,4 +17,6 @@ public interface MedicoService {
 	Medico buscarPorId(Integer id);
 
 	void excluir(Integer id);
+	
+	AgendaDto liberarAgenda(AgendaInputDto agendaInputDto);
 }

@@ -2,6 +2,7 @@ package br.com.santander.clinica.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -16,6 +17,8 @@ public class Medico extends Pessoa {
 	private Especialidade especialidade;
 	@OneToMany(mappedBy = "medico")
 	private List<Consulta> consultas = new ArrayList<>();
+	@OneToMany(mappedBy = "medico")
+	private List<Agenda> agenda = new ArrayList<>();
 
 	public Medico(String nome, String cpf, LocalDate dataNascimento, String crm,
 			Especialidade especialidade) {
@@ -39,5 +42,15 @@ public class Medico extends Pessoa {
 		this.especialidade = especialidade;
 		 
 	}
+	
+	public List<Consulta> getConsultas() {
+		return Collections.unmodifiableList(consultas);
+	}
+
+	public List<Agenda> getAgenda() {
+		return Collections.unmodifiableList(agenda);
+	}
+	
+	
 
 }

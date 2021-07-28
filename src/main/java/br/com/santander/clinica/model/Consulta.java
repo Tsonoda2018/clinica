@@ -1,6 +1,7 @@
 package br.com.santander.clinica.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,6 +16,8 @@ public class Consulta {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	private LocalDate dataConsulta;
+	private LocalDateTime horarioIncio;
+	private LocalDateTime horarioFim;
 	@ManyToOne
 	private Paciente paciente;
 	@ManyToOne
@@ -43,6 +46,14 @@ public class Consulta {
 
 	public Medico getMedico() {
 		return medico;
+	}
+
+	public LocalDateTime getHorarioIncio() {
+		return horarioIncio;
+	}
+
+	public LocalDateTime getHorarioFim() {
+		return horarioFim;
 	}
 	
 	
