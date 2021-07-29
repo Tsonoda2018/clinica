@@ -1,6 +1,7 @@
 package br.com.santander.clinica.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -57,5 +58,11 @@ public class MedicoServiceImpl implements MedicoService {
 		Medico medicoSalvo = this.buscarPorId(agendaInputDto.getIdMedico());
 		return AgendaDto.converte(agendaService.salvar(AgendaInputDto.converte(medicoSalvo, agendaInputDto)));
 
+	}
+
+	@Override
+	public List<AgendaDto> consultarAgenda(Medico medico) {
+		return agendaService.buscarAgendaPorMedico(medico).stream().map(a -> AgendaDto.converte(a))
+				.collect(Collectors.toList());
 	}
 }

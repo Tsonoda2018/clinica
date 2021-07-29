@@ -33,6 +33,9 @@ public class Agenda {
 		this.horarioInicio = horarioInicio;
 		this.horarioFim = horarioFim;
 	}
+	
+	protected Agenda() {
+	}
 
 	public Integer getId() {
 		return id;

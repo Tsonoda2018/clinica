@@ -19,4 +19,6 @@ public interface MedicoService {
 	void excluir(Integer id);
 	
 	AgendaDto liberarAgenda(AgendaInputDto agendaInputDto);
+	
+	List<AgendaDto> consultarAgenda(Medico medico);
 }

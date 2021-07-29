@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.santander.clinica.model.Paciente;
+import br.com.santander.clinica.model.dto.AgendaDto;
 import br.com.santander.clinica.model.dto.MedicoDto;
 import br.com.santander.clinica.model.dto.PacienteDto;
 import br.com.santander.clinica.model.dto.PacienteInputDto;
@@ -81,9 +82,16 @@ public class PacienteController {
 					MedicoDto dto = MedicoDto.converte(m);
 					Link self = linkTo(MedicoController.class).slash(m.getId()).withSelfRel();
 					Link medicos = linkTo(MedicoController.class).withRel("medicos");
-					dto.add(self).add(medicos);
+					Link agenda = linkTo(PacienteController.class).slash("medicos/agenda/" + m.getId()).withRel("agenda");
+					dto.add(self).add(medicos).add(agenda);
 					return dto;
 				}).collect(Collectors.toList());
+		return ResponseEntity.ok(dtos);
+	}
+	
+	@GetMapping("medicos/agenda/{id}")
+	public ResponseEntity<?> buscarAgendaMedico(@PathVariable Integer id) {
+		List<AgendaDto> dtos = medicoService.consultarAgenda(medicoService.buscarPorId(id));
 		return ResponseEntity.ok(dtos);
 	}
 }

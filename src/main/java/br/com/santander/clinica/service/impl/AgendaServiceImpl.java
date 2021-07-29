@@ -7,6 +7,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import br.com.santander.clinica.model.Agenda;
+import br.com.santander.clinica.model.Medico;
 import br.com.santander.clinica.repository.AgendaRepository;
 import br.com.santander.clinica.service.AgendaService;
 
@@ -38,6 +39,11 @@ public class AgendaServiceImpl implements AgendaService {
 	@Override
 	public void excluir(Integer id) {
 		this.agendaRepository.deleteById(id);
+
+	}
+
+	public List<Agenda> buscarAgendaPorMedico(Medico medico) {
+		return this.agendaRepository.findAllByMedicoId(medico.getId());
 
 	}
 
