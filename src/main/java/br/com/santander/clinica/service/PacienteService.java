@@ -2,7 +2,6 @@ package br.com.santander.clinica.service;
 
 import java.util.List;
 
-import br.com.santander.clinica.model.Especialidade;
 import br.com.santander.clinica.model.Paciente;
 
 public interface PacienteService {

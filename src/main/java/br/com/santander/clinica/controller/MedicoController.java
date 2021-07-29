@@ -56,7 +56,6 @@ public class MedicoController {
 		AgendaDto agendaDto = medicoService.liberarAgenda(agendaInputDto);
 		URI uri = uriBuilder.path("/medicos/agenda/{id}").buildAndExpand(agendaInputDto.getIdMedico()).toUri();
 		Link self = linkTo(MedicoController.class).slash(agendaInputDto.getIdMedico()).withSelfRel();
-		Link agenda = linkTo(AgendaController.class).withRel("agenda");
 		agendaDto.add(self);
 		return ResponseEntity.created(uri).body(agendaDto) ;
 	}
