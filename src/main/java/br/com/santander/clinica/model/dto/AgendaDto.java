@@ -38,7 +38,7 @@ public class AgendaDto extends RepresentationModel<AgendaDto> {
 	}
 
 	public static AgendaDto converte(Agenda agenda) {
-		return new AgendaDto(MedicoDto.converte(agenda.getMedico()), agenda.getDataLivre(), agenda.getHorarioInicio(),
+		return new AgendaDto(MedicoDto.converte(agenda.getMedico()), agenda.getAgendaId().getDataLivre(), agenda.getHorarioInicio(),
 				agenda.getHorarioFim());
 	}
 

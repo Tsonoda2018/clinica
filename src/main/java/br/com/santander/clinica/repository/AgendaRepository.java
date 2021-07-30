@@ -8,16 +8,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import br.com.santander.clinica.model.Agenda;
+import br.com.santander.clinica.model.AgendaBase;
 
 
 @Repository
-public interface AgendaRepository extends JpaRepository<Agenda, Integer> {
+public interface AgendaRepository extends JpaRepository<Agenda, AgendaBase> {
 
 	List<Agenda> findAllByMedicoId(Integer id);
 
-	Agenda findByDataLivreAndHorarioInicioLessThanEqualAndHorarioFimGreaterThan(LocalDate dataAgendamento,
+	Agenda findByAgendaIdDataLivreAndHorarioInicioLessThanEqualAndHorarioFimGreaterThan(LocalDate dataAgendamento,
 			LocalTime horaInicioAgendamento, LocalTime horaFimAgendamento);
 
-	List<Agenda> findAllByMedicoIdAndDataLivre(Integer medicoId, LocalDate data);
+	List<Agenda> findAllByMedicoIdAndAgendaIdDataLivreAndPacienteIdIsNotNull(Integer medicoId, LocalDate data);
+
+	List<Agenda> findAllByAgendaIdId(Integer id);
 
 }

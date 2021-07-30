@@ -3,6 +3,7 @@ package br.com.santander.clinica.config;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class ControllerAdvice {
 	}
 	
 	@ResponseStatus(value = HttpStatus.NOT_FOUND)
-	@ExceptionHandler(value = {IllegalArgumentException.class,EntityNotFoundException.class} )
+	@ExceptionHandler(value = {IllegalArgumentException.class,EntityNotFoundException.class, EntityExistsException.class} )
 	public ErroDto getErro(Exception ex) {
 		//String message2 = message.getMessage(null, LocaleContextHolder.getLocale());
 		//return new ErroDto(null, message2);

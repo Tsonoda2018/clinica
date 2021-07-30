@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Service;
 
 import br.com.santander.clinica.model.Agenda;
+import br.com.santander.clinica.model.AgendaBase;
 import br.com.santander.clinica.model.Medico;
 import br.com.santander.clinica.model.dto.AgendaDto;
 import br.com.santander.clinica.model.dto.AgendaPacienteDto;
@@ -29,7 +31,10 @@ public class AgendaServiceImpl implements AgendaService {
 
 	@Override
 	public Agenda salvar(Agenda agenda) {
-		return this.agendaRepository.save(agenda);
+		if (!agendaRepository.existsById(agenda.getAgendaId())) {
+			return this.agendaRepository.save(agenda);
+		}
+		throw new EntityExistsException("Agenda do dia " + agenda.getAgendaId().getDataLivre() + " já liberada.");
 	}
 
 	@Override
@@ -38,13 +43,13 @@ public class AgendaServiceImpl implements AgendaService {
 	}
 
 	@Override
-	public Agenda buscarPorId(Integer id) {
+	public Agenda buscarPorId(AgendaBase id) {
 		return this.agendaRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Não existe agenda com o id " + id));
 	}
 
 	@Override
-	public void excluir(Integer id) {
+	public void excluir(AgendaBase id) {
 		this.agendaRepository.deleteById(id);
 
 	}
@@ -56,8 +61,9 @@ public class AgendaServiceImpl implements AgendaService {
 
 	public boolean validaDisponibilidade(LocalDate dataAgendamento, LocalTime horaInicioAgendamento,
 			LocalTime horaFimAgendamento) {
-		Agenda agendaLivre = agendaRepository.findByDataLivreAndHorarioInicioLessThanEqualAndHorarioFimGreaterThan(
-				dataAgendamento, horaInicioAgendamento, horaFimAgendamento);
+		Agenda agendaLivre = agendaRepository
+				.findByAgendaIdDataLivreAndHorarioInicioLessThanEqualAndHorarioFimGreaterThan(dataAgendamento,
+						horaInicioAgendamento, horaFimAgendamento);
 		if (agendaLivre == null) {
 			return false;
 		}
@@ -69,10 +75,11 @@ public class AgendaServiceImpl implements AgendaService {
 	public List<AgendaDto> liberarAgenda(Medico medico, LocalDate data) {
 		LocalTime horarioInicio = LocalTime.of(8, 0);
 		List<AgendaDto> dtos = new ArrayList<>();
-		for (int i = 0; i < 9; i++) {
+		for (int i = 1; i < 10; i++) {
 			LocalTime horarioFim = horarioInicio.plusHours(1);
 			if (!horarioInicio.equals(LocalTime.of(12, 0)))
-				dtos.add(AgendaDto.converte(this.salvar(new Agenda(medico, data, horarioInicio, horarioFim))));
+				dtos.add(AgendaDto
+						.converte(this.salvar(new Agenda(new AgendaBase(i, data), medico, horarioInicio, horarioFim)) ));
 			horarioInicio = horarioFim;
 		}
 
@@ -81,11 +88,16 @@ public class AgendaServiceImpl implements AgendaService {
 	}
 
 	public List<AgendaPacienteDto> buscarAgendaPorData(Medico medico, LocalDate data) {
-		List<Agenda> dto = agendaRepository.findAllByMedicoIdAndDataLivre(medico.getId(), data);
-		List<AgendaPacienteDto> collect = dto.stream().map(a -> AgendaPacienteDto.converte(a))
+		List<Agenda> dto = agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreAndPacienteIdIsNotNull(medico.getId(), data);
+		List<AgendaPacienteDto> agenda = dto.stream().map(a -> AgendaPacienteDto.converte(a))
 				.collect(Collectors.toList());
-		return collect;
+		return agenda;
 
+	}
+
+	@Override
+	public List<Agenda> buscarPorId(Integer id) {
+		return agendaRepository.findAllByAgendaIdId(id);
 	}
 
 }
