@@ -74,7 +74,8 @@ public class MedicoController {
 		MedicoDto medicosDto = MedicoDto.converte(medicoService.buscarPorId(id));
 		Link self = linkTo(MedicoController.class).slash(id).withSelfRel();
 		Link medicos = linkTo(MedicoController.class).withRel("medicos");
-		return ResponseEntity.ok(medicosDto.add(self).add(medicos));
+		Link pacientesPorData = linkTo(MedicoController.class).slash("/pacientes/" + id +"?data=" + LocalDate.now()).withRel("pacientesPorData");
+		return ResponseEntity.ok(medicosDto.add(self).add(medicos).add(pacientesPorData));
 	}
 
 	@GetMapping
