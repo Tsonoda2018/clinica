@@ -16,18 +16,19 @@ public class Medico extends Pessoa {
 	@ManyToOne
 	private Especialidade especialidade;
 	@OneToMany(mappedBy = "medico")
-	private List<Consulta> consultas = new ArrayList<>();
-	@OneToMany(mappedBy = "medico")
 	private List<Agenda> agenda = new ArrayList<>();
 
-	public Medico(String nome, String cpf, LocalDate dataNascimento, String crm,
-			Especialidade especialidade) {
+	public Medico(String nome, String cpf, LocalDate dataNascimento, String crm, Especialidade especialidade) {
 		super(nome, cpf, dataNascimento);
 		this.crm = crm;
 		this.especialidade = especialidade;
 	}
 
 	protected Medico() {
+	}
+
+	public void setCrm(String crm) {
+		this.crm = crm;
 	}
 
 	public String getCrm() {
@@ -40,17 +41,15 @@ public class Medico extends Pessoa {
 
 	public void setEspecialidade(Especialidade especialidade) {
 		this.especialidade = especialidade;
-		 
-	}
-	
-	public List<Consulta> getConsultas() {
-		return Collections.unmodifiableList(consultas);
+
 	}
 
 	public List<Agenda> getAgenda() {
 		return Collections.unmodifiableList(agenda);
 	}
-	
-	
+
+	public void setAgenda(List<Agenda> agenda) {
+		this.agenda = agenda;
+	}
 
 }

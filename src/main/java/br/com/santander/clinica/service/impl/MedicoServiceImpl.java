@@ -1,5 +1,6 @@
 package br.com.santander.clinica.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,7 @@ import br.com.santander.clinica.model.Especialidade;
 import br.com.santander.clinica.model.Medico;
 import br.com.santander.clinica.model.dto.AgendaDto;
 import br.com.santander.clinica.model.dto.AgendaInputDto;
+import br.com.santander.clinica.model.dto.AgendaPacienteDto;
 import br.com.santander.clinica.repository.MedicoRepository;
 import br.com.santander.clinica.service.MedicoService;
 
@@ -54,9 +56,10 @@ public class MedicoServiceImpl implements MedicoService {
 	}
 
 	@Override
-	public AgendaDto liberarAgenda(AgendaInputDto agendaInputDto) {
-		Medico medicoSalvo = this.buscarPorId(agendaInputDto.getIdMedico());
-		return AgendaDto.converte(agendaService.salvar(AgendaInputDto.converte(medicoSalvo, agendaInputDto)));
+	public List<AgendaDto> liberarAgenda(AgendaInputDto agendaInputDto) {
+		Medico medico = this.buscarPorId(agendaInputDto.getIdMedico());
+		List<AgendaDto> agenda = agendaService.liberarAgenda(medico, agendaInputDto.getData());
+		return agenda;
 
 	}
 
@@ -65,4 +68,11 @@ public class MedicoServiceImpl implements MedicoService {
 		return agendaService.buscarAgendaPorMedico(medico).stream().map(a -> AgendaDto.converte(a))
 				.collect(Collectors.toList());
 	}
+
+	@Override
+	public List<AgendaPacienteDto> consutarPacientePorData(Medico medico, LocalDate data) {
+		List<AgendaPacienteDto> dto = agendaService.buscarAgendaPorData(medico, data);
+		return dto;
+	}
+
 }

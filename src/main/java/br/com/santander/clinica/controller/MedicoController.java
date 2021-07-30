@@ -3,6 +3,7 @@ package br.com.santander.clinica.controller;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import br.com.santander.clinica.model.Medico;
 import br.com.santander.clinica.model.dto.AgendaDto;
 import br.com.santander.clinica.model.dto.AgendaInputDto;
+import br.com.santander.clinica.model.dto.AgendaPacienteDto;
 import br.com.santander.clinica.model.dto.MedicoDto;
 import br.com.santander.clinica.model.dto.MedicoInputDto;
 import br.com.santander.clinica.service.EspecialidadeService;
@@ -34,32 +36,39 @@ public class MedicoController {
 	private final EspecialidadeService especialidadeService;
 
 	public MedicoController(MedicoService medicoService, EspecialidadeService especialidadeService) {
+		super();
 		this.medicoService = medicoService;
 		this.especialidadeService = especialidadeService;
 	}
 
 	@PostMapping
-	public ResponseEntity<?> salvar(@RequestBody @Valid MedicoInputDto medicoInputDto, UriComponentsBuilder uriBuilder) {
+	public ResponseEntity<?> salvar(@RequestBody @Valid MedicoInputDto medicoInputDto,
+			UriComponentsBuilder uriBuilder) {
 		Medico medico = medicoInputDto.converte();
 		medico.setEspecialidade(especialidadeService.buscarPorId(medicoInputDto.getIdEspecialidade()));
 		Medico medicoSalvo = medicoService.salvar(medico);
 		URI uri = uriBuilder.path("/medicos/{id}").buildAndExpand(medicoSalvo.getId()).toUri();
 		Link self = linkTo(MedicoController.class).slash(medicoSalvo.getId()).withSelfRel();
 		Link medicos = linkTo(MedicoController.class).withRel("medicos");
-		Link especialidade = linkTo(EspecialidadeController.class).slash(medicoSalvo.getEspecialidade().getid()).withRel("especialidades");
+		Link especialidade = linkTo(EspecialidadeController.class).slash(medicoSalvo.getEspecialidade().getid())
+				.withRel("especialidades");
 		MedicoDto medicoDto = MedicoDto.converte(medicoSalvo);
 		return ResponseEntity.created(uri).body(medicoDto.add(self).add(medicos).add(especialidade));
 	}
-	
+
 	@PostMapping("/agenda/{idMedico}")
-	public ResponseEntity<?> liberarAgenda(@RequestBody @Valid AgendaInputDto agendaInputDto, UriComponentsBuilder uriBuilder) {
-		AgendaDto agendaDto = medicoService.liberarAgenda(agendaInputDto);
+	public ResponseEntity<?> liberarAgenda(@RequestBody @Valid AgendaInputDto agendaInputDto,
+			UriComponentsBuilder uriBuilder) {
 		URI uri = uriBuilder.path("/medicos/agenda/{id}").buildAndExpand(agendaInputDto.getIdMedico()).toUri();
-		Link self = linkTo(MedicoController.class).slash(agendaInputDto.getIdMedico()).withSelfRel();
-		agendaDto.add(self);
-		return ResponseEntity.created(uri).body(agendaDto) ;
+
+		List<AgendaDto> agenda = medicoService.liberarAgenda(agendaInputDto);
+		agenda.forEach(a -> {
+			Link self = linkTo(MedicoController.class).slash(agendaInputDto.getIdMedico()).withSelfRel();
+			a.add(self);
+		});
+		return ResponseEntity.created(uri).body(agenda);
 	}
-	
+
 	@GetMapping("/{id}")
 	public ResponseEntity<MedicoDto> buscarPorId(@PathVariable Integer id) {
 		MedicoDto medicosDto = MedicoDto.converte(medicoService.buscarPorId(id));
@@ -71,25 +80,37 @@ public class MedicoController {
 	@GetMapping
 	public ResponseEntity<List<MedicoDto>> buscarTodos() {
 		List<MedicoDto> dtos = medicoService.buscarTodos().stream().map(m -> {
-			 MedicoDto dto = MedicoDto.converte(m);
-			 Link self = linkTo(MedicoController.class).slash(m.getId()).withSelfRel();
-			 Link medicos = linkTo(MedicoController.class).withRel("medicos");
-			 dto.add(self).add(medicos);
-			 return dto;
-		}
-			).collect(Collectors.toList());
-		return ResponseEntity.ok(dtos);
-		}
-	
-	@GetMapping("/especialidades/{id}")
-	public ResponseEntity<?> buscarPorEspecialidade(@PathVariable Integer id) {
-		List<MedicoDto> dtos = medicoService.buscarPorEspecialidade(especialidadeService.buscarPorId(id)).stream().map(m -> {
 			MedicoDto dto = MedicoDto.converte(m);
 			Link self = linkTo(MedicoController.class).slash(m.getId()).withSelfRel();
-			 Link medicos = linkTo(MedicoController.class).withRel("medicos");
-			 dto.add(self).add(medicos);
-			 return dto;
+			Link medicos = linkTo(MedicoController.class).withRel("medicos");
+			dto.add(self).add(medicos);
+			return dto;
 		}).collect(Collectors.toList());
 		return ResponseEntity.ok(dtos);
 	}
+
+	@GetMapping("/especialidades/{id}")
+	public ResponseEntity<?> buscarPorEspecialidade(@PathVariable Integer id) {
+		List<MedicoDto> dtos = medicoService.buscarPorEspecialidade(especialidadeService.buscarPorId(id)).stream()
+				.map(m -> {
+					MedicoDto dto = MedicoDto.converte(m);
+					Link self = linkTo(MedicoController.class).slash(m.getId()).withSelfRel();
+					Link medicos = linkTo(MedicoController.class).withRel("medicos");
+					dto.add(self).add(medicos);
+					return dto;
+				}).collect(Collectors.toList());
+		return ResponseEntity.ok(dtos);
+	}
+
+	@GetMapping("/pacientes/{medicoId}")
+	public ResponseEntity<?> buscarPacientesPorData(@PathVariable Integer medicoId, String data) {
+		LocalDate dataParse = LocalDate.parse(data);
+		List<AgendaPacienteDto> dtos = medicoService.consutarPacientePorData(medicoService.buscarPorId(medicoId), dataParse);
+		dtos.forEach(a -> {
+			Link self = linkTo(MedicoController.class).slash(medicoId).withSelfRel();
+			a.add(self);
+		});
+		return ResponseEntity.ok(dtos);
+	}
+
 }

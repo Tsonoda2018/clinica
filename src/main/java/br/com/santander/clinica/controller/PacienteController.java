@@ -20,6 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.santander.clinica.model.Paciente;
 import br.com.santander.clinica.model.dto.AgendaDto;
+import br.com.santander.clinica.model.dto.AgendamentoDto;
 import br.com.santander.clinica.model.dto.MedicoDto;
 import br.com.santander.clinica.model.dto.PacienteDto;
 import br.com.santander.clinica.model.dto.PacienteInputDto;
@@ -94,4 +95,15 @@ public class PacienteController {
 		List<AgendaDto> dtos = medicoService.consultarAgenda(medicoService.buscarPorId(id));
 		return ResponseEntity.ok(dtos);
 	}
+	
+	@PostMapping("/agendamento")
+	public ResponseEntity<?> agendar(@RequestBody @Valid AgendamentoDto agendamentoDto,
+			UriComponentsBuilder uriBuilder) {
+		pacienteService.agendaConsulta(agendamentoDto);
+//		URI uri = uriBuilder.path("/pacientes/{id}").buildAndExpand(pacienteSalvo.getId()).toUri();
+//		Link self = linkTo(PacienteController.class).slash(pacienteSalvo.getId()).withSelfRel();
+//		Link pacientes = linkTo(PacienteController.class).withRel("pacientes");
+//		PacienteDto pacienteDto = PacienteDto.converte(pacienteSalvo);
+		return ResponseEntity.ok("OK");
+	} 
 }

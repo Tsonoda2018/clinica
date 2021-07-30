@@ -7,7 +7,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 import br.com.santander.clinica.model.Agenda;
 
-public class AgendaDto extends RepresentationModel<MedicoDto> {
+public class AgendaDto extends RepresentationModel<AgendaDto> {
 
 	private MedicoDto medicoDto;
 	private LocalDate data;

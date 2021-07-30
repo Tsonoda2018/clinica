@@ -21,6 +21,9 @@ public class Agenda {
 	@ManyToOne
 	@JsonIgnore
 	private Medico medico;
+	@ManyToOne
+	@JsonIgnore
+	private Paciente paciente;
 
 	private LocalDate dataLivre;
 	private LocalTime horarioInicio;
@@ -33,7 +36,7 @@ public class Agenda {
 		this.horarioInicio = horarioInicio;
 		this.horarioFim = horarioFim;
 	}
-	
+
 	protected Agenda() {
 	}
 
@@ -53,8 +56,32 @@ public class Agenda {
 		return horarioInicio;
 	}
 
+	public void setMedico(Medico medico) {
+		this.medico = medico;
+	}
+
+	public void setDataLivre(LocalDate dataLivre) {
+		this.dataLivre = dataLivre;
+	}
+
+	public void setHorarioInicio(LocalTime horarioInicio) {
+		this.horarioInicio = horarioInicio;
+	}
+
+	public void setHorarioFim(LocalTime horarioFim) {
+		this.horarioFim = horarioFim;
+	}
+
 	public LocalTime getHorarioFim() {
 		return horarioFim;
+	}
+
+	public Paciente getPaciente() {
+		return paciente;
+	}
+
+	public void setPaciente(Paciente paciente) {
+		this.paciente = paciente;
 	}
 
 }
