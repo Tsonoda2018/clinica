@@ -15,7 +15,7 @@ public class Medico extends Pessoa {
 	private String crm;
 	@ManyToOne
 	private Especialidade especialidade;
-	@OneToMany(mappedBy = "medico")
+	@OneToMany(mappedBy = "agendaId.medico")
 	private List<Agenda> agenda = new ArrayList<>();
 
 	public Medico(String nome, String cpf, LocalDate dataNascimento, String crm, Especialidade especialidade) {

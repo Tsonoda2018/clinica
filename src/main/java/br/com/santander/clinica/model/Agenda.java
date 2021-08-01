@@ -10,12 +10,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Agenda {
+
 	@EmbeddedId
 	private AgendaBase agendaId;
 
-	@ManyToOne
-	@JsonIgnore
-	private Medico medico;
 	@ManyToOne
 	@JsonIgnore
 	private Paciente paciente;
@@ -23,10 +21,9 @@ public class Agenda {
 	private LocalTime horarioInicio;
 	private LocalTime horarioFim;
 
-	public Agenda(AgendaBase agendaId, Medico medico, LocalTime horarioInicio, LocalTime horarioFim) {
+	public Agenda(AgendaBase agendaId, LocalTime horarioInicio, LocalTime horarioFim) {
 		super();
 		this.agendaId = agendaId;
-		this.medico = medico;
 		this.horarioInicio = horarioInicio;
 		this.horarioFim = horarioFim;
 	}
@@ -34,16 +31,8 @@ public class Agenda {
 	protected Agenda() {
 	}
 
-	public Medico getMedico() {
-		return medico;
-	}
-
 	public LocalTime getHorarioInicio() {
 		return horarioInicio;
-	}
-
-	public void setMedico(Medico medico) {
-		this.medico = medico;
 	}
 
 	public void setHorarioInicio(LocalTime horarioInicio) {

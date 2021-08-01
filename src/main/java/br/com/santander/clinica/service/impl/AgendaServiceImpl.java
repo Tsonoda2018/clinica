@@ -35,7 +35,7 @@ public class AgendaServiceImpl implements AgendaService {
 		if (!agendaRepository.existsById(agenda.getAgendaId()) || this.validaDisponibilidade(agenda)) {
 			return this.agendaRepository.save(agenda);
 		}
-		
+
 		throw new EntityExistsException("Agenda do dia " + agenda.getAgendaId().getDataLivre() + " já liberada.");
 	}
 
@@ -57,16 +57,20 @@ public class AgendaServiceImpl implements AgendaService {
 	}
 
 	public List<Agenda> buscarAgendaPorMedico(Medico medico) {
-		return this.agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreGreaterThanEqualAndPacienteIdIsNull(
+		return this.agendaRepository.findAllByAgendaIdMedicoIdAndAgendaIdDataLivreGreaterThanEqualAndPacienteIdIsNull(
 				medico.getId(), LocalDate.now());
 
 	}
 
 	public boolean validaDisponibilidade(Agenda agenda) {
-		Agenda agendaLivre = agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFimAndPacienteIdIsNull(agenda.getMedico().getId(),
-				agenda.getAgendaId().getDataLivre(), agenda.getHorarioInicio(), agenda.getHorarioFim());
+		Agenda agendaLivre = agendaRepository
+				.findAllByAgendaIdMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFimAndPacienteIdIsNull(
+						agenda.getAgendaId().getMedico().getId(), agenda.getAgendaId().getDataLivre(), agenda.getHorarioInicio(),
+						agenda.getHorarioFim());
 		if (agendaLivre == null) {
-			return false;
+			throw new EntityExistsException("Agenda do dia " + agenda.getAgendaId().getDataLivre() + " Inicio: "
+					+ agenda.getHorarioInicio() + " - Fim: " + agenda.getHorarioFim() + " já reservada");
+//			return false;
 		}
 
 		return true;
@@ -80,7 +84,7 @@ public class AgendaServiceImpl implements AgendaService {
 			LocalTime horarioFim = horarioInicio.plusHours(1);
 			if (!horarioInicio.equals(LocalTime.of(12, 0)))
 				dtos.add(AgendaDto
-						.converte(this.salvar(new Agenda(new AgendaBase(i, data), medico, horarioInicio, horarioFim))));
+						.converte(this.salvar(new Agenda(new AgendaBase(i, medico, data), horarioInicio, horarioFim))));
 			horarioInicio = horarioFim;
 		}
 
@@ -89,7 +93,7 @@ public class AgendaServiceImpl implements AgendaService {
 	}
 
 	public List<AgendaPacienteDto> buscarAgendaPorData(Medico medico, LocalDate data) {
-		List<Agenda> dto = agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreAndPacienteIdIsNotNull(medico.getId(),
+		List<Agenda> dto = agendaRepository.findAllByAgendaIdMedicoIdAndAgendaIdDataLivreAndPacienteIdIsNotNull(medico.getId(),
 				data);
 		List<AgendaPacienteDto> agenda = dto.stream().map(a -> AgendaPacienteDto.converte(a))
 				.collect(Collectors.toList());
@@ -105,7 +109,11 @@ public class AgendaServiceImpl implements AgendaService {
 	@Override
 	public Agenda agendar(Medico medico, Paciente paciente, LocalDate dataAgendamento, LocalTime horaInicioAgendamento,
 			LocalTime horaFimAgendamento) {
-		Agenda agenda = agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFim(medico.getId(), dataAgendamento, horaInicioAgendamento, horaFimAgendamento).get(0);
+		if (!agendaRepository.existsByAgendaIdDataLivreAndHorarioInicioAndHorarioFim(dataAgendamento, horaInicioAgendamento, horaFimAgendamento)) {
+			throw new EntityNotFoundException("Data/horário não disponível.");
+		}
+		Agenda agenda = agendaRepository.findAllByAgendaIdMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFim(
+				medico.getId(), dataAgendamento, horaInicioAgendamento, horaFimAgendamento).get(0);
 		agenda.setPaciente(paciente);
 		return this.salvar(agenda);
 

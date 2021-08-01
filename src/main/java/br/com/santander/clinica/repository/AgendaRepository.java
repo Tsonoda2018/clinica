@@ -13,21 +13,24 @@ import br.com.santander.clinica.model.AgendaBase;
 @Repository
 public interface AgendaRepository extends JpaRepository<Agenda, AgendaBase> {
 
-	List<Agenda> findAllByMedicoId(Integer id);
+	List<Agenda> findAllByAgendaIdMedicoId(Integer id);
 
 	Agenda findByAgendaIdDataLivreAndHorarioInicioLessThanEqualAndHorarioFimGreaterThan(LocalDate dataAgendamento,
 			LocalTime horaInicioAgendamento, LocalTime horaFimAgendamento);
 
-	List<Agenda> findAllByMedicoIdAndAgendaIdDataLivreAndPacienteIdIsNotNull(Integer medicoId, LocalDate data);
+	List<Agenda> findAllByAgendaIdMedicoIdAndAgendaIdDataLivreAndPacienteIdIsNotNull(Integer medicoId, LocalDate data);
 
 	List<Agenda> findAllByAgendaIdId(Integer id);
 
-	List<Agenda> findAllByMedicoIdAndAgendaIdDataLivreGreaterThanEqualAndPacienteIdIsNull(Integer id, LocalDate now);
+	List<Agenda> findAllByAgendaIdMedicoIdAndAgendaIdDataLivreGreaterThanEqualAndPacienteIdIsNull(Integer id, LocalDate now);
 
-	List<Agenda> findAllByMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFim(Integer id, LocalDate data,
+	List<Agenda> findAllByAgendaIdMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFim(Integer id, LocalDate data,
 			LocalTime horarioInicio, LocalTime horarioFim);
 
-	Agenda findAllByMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFimAndPacienteIdIsNull(Integer id,
+	Agenda findAllByAgendaIdMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFimAndPacienteIdIsNull(Integer id,
 			LocalDate dataLivre, LocalTime horarioInicio, LocalTime horarioFim);
+
+	boolean existsByAgendaIdDataLivreAndHorarioInicioAndHorarioFim(LocalDate dataAgendamento,
+			LocalTime horaInicioAgendamento, LocalTime horaFimAgendamento);
 
 }

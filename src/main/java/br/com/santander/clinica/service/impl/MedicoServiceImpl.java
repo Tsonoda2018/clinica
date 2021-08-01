@@ -1,8 +1,6 @@
 package br.com.santander.clinica.service.impl;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -46,7 +46,7 @@ public class PacienteAgendamentoDto extends RepresentationModel<PacienteAgendame
 	}
 
 	public static PacienteAgendamentoDto converte(Agenda agendamento) {
-		return new PacienteAgendamentoDto(agendamento.getPaciente().getNome(), agendamento.getMedico().getNome(), agendamento.getAgendaId().getDataLivre(), agendamento.getHorarioInicio(), agendamento.getHorarioFim());
+		return new PacienteAgendamentoDto(agendamento.getPaciente().getNome(), agendamento.getAgendaId().getMedico().getNome(), agendamento.getAgendaId().getDataLivre(), agendamento.getHorarioInicio(), agendamento.getHorarioFim());
 	}
 
 }

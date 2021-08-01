@@ -5,11 +5,14 @@ import java.time.LocalTime;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import br.com.santander.clinica.model.Agenda;
 
 public class AgendaDto extends RepresentationModel<AgendaDto> {
 
 	private Integer id;
+	@JsonIgnore
 	private MedicoDto medicoDto;
 	private LocalDate data;
 	private LocalTime horarioInicio;
@@ -48,7 +51,7 @@ public class AgendaDto extends RepresentationModel<AgendaDto> {
 	}
 
 	public static AgendaDto converte(Agenda agenda) {
-		return new AgendaDto(agenda.getAgendaId().getId(), MedicoDto.converte(agenda.getMedico()), agenda.getAgendaId().getDataLivre(),
+		return new AgendaDto(agenda.getAgendaId().getId(), MedicoDto.converte(agenda.getAgendaId().getMedico()), agenda.getAgendaId().getDataLivre(),
 				agenda.getHorarioInicio(), agenda.getHorarioFim());
 	}
 
