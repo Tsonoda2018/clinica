@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import br.com.santander.clinica.model.Agenda;
 import br.com.santander.clinica.model.AgendaBase;
 import br.com.santander.clinica.model.Medico;
+import br.com.santander.clinica.model.Paciente;
 import br.com.santander.clinica.model.dto.AgendaDto;
 import br.com.santander.clinica.model.dto.AgendaPacienteDto;
 import br.com.santander.clinica.repository.AgendaRepository;
@@ -31,9 +32,10 @@ public class AgendaServiceImpl implements AgendaService {
 
 	@Override
 	public Agenda salvar(Agenda agenda) {
-		if (!agendaRepository.existsById(agenda.getAgendaId())) {
+		if (!agendaRepository.existsById(agenda.getAgendaId()) || this.validaDisponibilidade(agenda)) {
 			return this.agendaRepository.save(agenda);
 		}
+		
 		throw new EntityExistsException("Agenda do dia " + agenda.getAgendaId().getDataLivre() + " já liberada.");
 	}
 
@@ -55,15 +57,14 @@ public class AgendaServiceImpl implements AgendaService {
 	}
 
 	public List<Agenda> buscarAgendaPorMedico(Medico medico) {
-		return this.agendaRepository.findAllByMedicoId(medico.getId());
+		return this.agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreGreaterThanEqualAndPacienteIdIsNull(
+				medico.getId(), LocalDate.now());
 
 	}
 
-	public boolean validaDisponibilidade(LocalDate dataAgendamento, LocalTime horaInicioAgendamento,
-			LocalTime horaFimAgendamento) {
-		Agenda agendaLivre = agendaRepository
-				.findByAgendaIdDataLivreAndHorarioInicioLessThanEqualAndHorarioFimGreaterThan(dataAgendamento,
-						horaInicioAgendamento, horaFimAgendamento);
+	public boolean validaDisponibilidade(Agenda agenda) {
+		Agenda agendaLivre = agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFimAndPacienteIdIsNull(agenda.getMedico().getId(),
+				agenda.getAgendaId().getDataLivre(), agenda.getHorarioInicio(), agenda.getHorarioFim());
 		if (agendaLivre == null) {
 			return false;
 		}
@@ -79,7 +80,7 @@ public class AgendaServiceImpl implements AgendaService {
 			LocalTime horarioFim = horarioInicio.plusHours(1);
 			if (!horarioInicio.equals(LocalTime.of(12, 0)))
 				dtos.add(AgendaDto
-						.converte(this.salvar(new Agenda(new AgendaBase(i, data), medico, horarioInicio, horarioFim)) ));
+						.converte(this.salvar(new Agenda(new AgendaBase(i, data), medico, horarioInicio, horarioFim))));
 			horarioInicio = horarioFim;
 		}
 
@@ -88,7 +89,8 @@ public class AgendaServiceImpl implements AgendaService {
 	}
 
 	public List<AgendaPacienteDto> buscarAgendaPorData(Medico medico, LocalDate data) {
-		List<Agenda> dto = agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreAndPacienteIdIsNotNull(medico.getId(), data);
+		List<Agenda> dto = agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreAndPacienteIdIsNotNull(medico.getId(),
+				data);
 		List<AgendaPacienteDto> agenda = dto.stream().map(a -> AgendaPacienteDto.converte(a))
 				.collect(Collectors.toList());
 		return agenda;
@@ -98,6 +100,15 @@ public class AgendaServiceImpl implements AgendaService {
 	@Override
 	public List<Agenda> buscarPorId(Integer id) {
 		return agendaRepository.findAllByAgendaIdId(id);
+	}
+
+	@Override
+	public Agenda agendar(Medico medico, Paciente paciente, LocalDate dataAgendamento, LocalTime horaInicioAgendamento,
+			LocalTime horaFimAgendamento) {
+		Agenda agenda = agendaRepository.findAllByMedicoIdAndAgendaIdDataLivreAndHorarioInicioAndHorarioFim(medico.getId(), dataAgendamento, horaInicioAgendamento, horaFimAgendamento).get(0);
+		agenda.setPaciente(paciente);
+		return this.salvar(agenda);
+
 	}
 
 }

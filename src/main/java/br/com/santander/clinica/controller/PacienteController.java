@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,7 @@ import br.com.santander.clinica.model.Paciente;
 import br.com.santander.clinica.model.dto.AgendaDto;
 import br.com.santander.clinica.model.dto.AgendamentoDto;
 import br.com.santander.clinica.model.dto.MedicoDto;
+import br.com.santander.clinica.model.dto.PacienteAgendamentoDto;
 import br.com.santander.clinica.model.dto.PacienteDto;
 import br.com.santander.clinica.model.dto.PacienteInputDto;
 import br.com.santander.clinica.service.EspecialidadeService;
@@ -61,7 +63,8 @@ public class PacienteController {
 		PacienteDto pacientesDto = PacienteDto.converte(pacienteService.buscarPorId(id));
 		Link self = linkTo(PacienteController.class).slash(id).withSelfRel();
 		Link pacientes = linkTo(PacienteController.class).withRel("pacientes");
-		return ResponseEntity.ok(pacientesDto.add(self).add(pacientes));
+		Link agendar = linkTo(PacienteController.class).slash("agendamento").withRel("agendar").withType("put");
+		return ResponseEntity.ok(pacientesDto.add(self).add(pacientes).add(agendar));
 	}
 
 	@GetMapping
@@ -83,27 +86,29 @@ public class PacienteController {
 					MedicoDto dto = MedicoDto.converte(m);
 					Link self = linkTo(MedicoController.class).slash(m.getId()).withSelfRel();
 					Link medicos = linkTo(MedicoController.class).withRel("medicos");
-					Link agenda = linkTo(PacienteController.class).slash("medicos/agenda/" + m.getId()).withRel("agenda");
+					Link agenda = linkTo(PacienteController.class).slash("medicos/agenda/" + m.getId())
+							.withRel("agenda");
 					dto.add(self).add(medicos).add(agenda);
 					return dto;
 				}).collect(Collectors.toList());
 		return ResponseEntity.ok(dtos);
 	}
-	
+
 	@GetMapping("medicos/agenda/{id}")
 	public ResponseEntity<?> buscarAgendaMedico(@PathVariable Integer id) {
 		List<AgendaDto> dtos = medicoService.consultarAgenda(medicoService.buscarPorId(id));
 		return ResponseEntity.ok(dtos);
 	}
-	
-	@PostMapping("/agendamento")
+
+	@PutMapping("/agendamento")
 	public ResponseEntity<?> agendar(@RequestBody @Valid AgendamentoDto agendamentoDto,
 			UriComponentsBuilder uriBuilder) {
-		pacienteService.agendaConsulta(agendamentoDto);
+		PacienteAgendamentoDto agendaConsulta = pacienteService.agendaConsulta(agendamentoDto);
 //		URI uri = uriBuilder.path("/pacientes/{id}").buildAndExpand(pacienteSalvo.getId()).toUri();
-//		Link self = linkTo(PacienteController.class).slash(pacienteSalvo.getId()).withSelfRel();
-//		Link pacientes = linkTo(PacienteController.class).withRel("pacientes");
+		Link self = linkTo(PacienteController.class).slash(agendamentoDto.getIdPaciente()).withSelfRel();
+		Link pacientes = linkTo(PacienteController.class).withRel("pacientes");
 //		PacienteDto pacienteDto = PacienteDto.converte(pacienteSalvo);
-		return ResponseEntity.ok("OK");
-	} 
+		return ResponseEntity.ok(agendaConsulta.add(self).add(pacientes));
+	}
+
 }
