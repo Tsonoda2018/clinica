@@ -27,6 +27,8 @@ public class MedicoInputDto {
 		this.crm = crm;
 		this.idEspecialidade = idEspecialidade;
 	}
+	
+	protected MedicoInputDto() {}
 
 	public String getNome() {
 		return nome;
