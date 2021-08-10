@@ -24,6 +24,7 @@ import br.com.santander.clinica.model.dto.AgendaDto;
 import br.com.santander.clinica.model.dto.AgendaInputDto;
 import br.com.santander.clinica.model.dto.AgendaPacienteDto;
 import br.com.santander.clinica.model.dto.MedicoDto;
+import br.com.santander.clinica.model.dto.MedicoFiltroDto;
 import br.com.santander.clinica.model.dto.MedicoInputDto;
 import br.com.santander.clinica.service.EspecialidadeService;
 import br.com.santander.clinica.service.MedicoService;
@@ -79,8 +80,8 @@ public class MedicoController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<MedicoDto>> buscarTodos() {
-		List<MedicoDto> dtos = medicoService.buscarTodos().stream().map(m -> {
+	public ResponseEntity<List<MedicoDto>> buscarTodos(MedicoFiltroDto filtro) {
+		List<MedicoDto> dtos = medicoService.buscarTodos(filtro).stream().map(m -> {
 			MedicoDto dto = MedicoDto.converte(m);
 			Link self = linkTo(MedicoController.class).slash(m.getId()).withSelfRel();
 			Link medicos = linkTo(MedicoController.class).withRel("medicos");

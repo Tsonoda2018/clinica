@@ -6,14 +6,19 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import br.com.santander.clinica.model.Agenda;
 import br.com.santander.clinica.model.Especialidade;
 import br.com.santander.clinica.model.Medico;
 import br.com.santander.clinica.model.dto.AgendaDto;
 import br.com.santander.clinica.model.dto.AgendaInputDto;
 import br.com.santander.clinica.model.dto.AgendaPacienteDto;
+import br.com.santander.clinica.model.dto.FiltroAgendaDto;
+import br.com.santander.clinica.model.dto.MedicoFiltroDto;
 import br.com.santander.clinica.repository.MedicoRepository;
+import br.com.santander.clinica.repository.specification.MedicoSpecification;
 import br.com.santander.clinica.service.MedicoService;
 
 @Service
@@ -34,10 +39,6 @@ public class MedicoServiceImpl implements MedicoService {
 		return this.medicoRepository.save(medico);
 	}
 
-	@Override
-	public List<Medico> buscarTodos() {
-		return this.medicoRepository.findAll();
-	}
 
 	@Override
 	public Medico buscarPorId(Integer id) {
@@ -66,14 +67,24 @@ public class MedicoServiceImpl implements MedicoService {
 
 	@Override
 	public List<AgendaDto> consultarAgenda(Medico medico) {
-		return agendaService.buscarAgendaPorMedico(medico).stream().map(a -> AgendaDto.converte(a))
-				.collect(Collectors.toList());
+		List<Agenda> agenda = agendaService.buscarTodos(new FiltroAgendaDto(medico.getNome(), null, medico.getEspecialidade().getNome())); 
+		return agenda.stream().map(a -> AgendaDto.converte(a)).collect(Collectors.toList());
+//		return agendaService.buscarAgendaPorMedico(medico).stream().map(a -> AgendaDto.converte(a))
+//				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<AgendaPacienteDto> consutarPacientePorData(Medico medico, LocalDate data) {
 		List<AgendaPacienteDto> dto = agendaService.buscarAgendaPorData(medico, data);
 		return dto;
+	}
+
+
+	@Override
+	public List<Medico> buscarTodos(MedicoFiltroDto filtro) {
+		List<Medico> findAll = medicoRepository.findAll(Specification.where(MedicoSpecification.porNomeMedico(filtro.getNomeMedico())
+				.or(MedicoSpecification.porEspecialidade(filtro.getEspecialidade()))));
+		return findAll;
 	}
 
 }

@@ -5,13 +5,14 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import br.com.santander.clinica.model.Agenda;
 import br.com.santander.clinica.model.AgendaBase;
 
 @Repository
-public interface AgendaRepository extends JpaRepository<Agenda, AgendaBase> {
+public interface AgendaRepository extends JpaRepository<Agenda, AgendaBase>, JpaSpecificationExecutor<Agenda> {
 
 	List<Agenda> findAllByAgendaIdMedicoId(Integer id);
 

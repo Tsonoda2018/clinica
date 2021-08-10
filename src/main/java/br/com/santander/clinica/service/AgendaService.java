@@ -8,11 +8,12 @@ import br.com.santander.clinica.model.Agenda;
 import br.com.santander.clinica.model.AgendaBase;
 import br.com.santander.clinica.model.Medico;
 import br.com.santander.clinica.model.Paciente;
+import br.com.santander.clinica.model.dto.FiltroAgendaDto;
 
 public interface AgendaService {
 	Agenda salvar(Agenda agenda);
 
-	List<Agenda> buscarTodos();
+	List<Agenda> buscarTodos(FiltroAgendaDto filtro);
 
 	List<Agenda> buscarPorId(Integer id);
 

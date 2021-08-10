@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import br.com.santander.clinica.model.Agenda;
@@ -17,7 +18,9 @@ import br.com.santander.clinica.model.Medico;
 import br.com.santander.clinica.model.Paciente;
 import br.com.santander.clinica.model.dto.AgendaDto;
 import br.com.santander.clinica.model.dto.AgendaPacienteDto;
+import br.com.santander.clinica.model.dto.FiltroAgendaDto;
 import br.com.santander.clinica.repository.AgendaRepository;
+import br.com.santander.clinica.repository.specification.AgendaSpecification;
 import br.com.santander.clinica.service.AgendaService;
 
 @Service
@@ -39,10 +42,6 @@ public class AgendaServiceImpl implements AgendaService {
 		throw new EntityExistsException("Agenda do dia " + agenda.getAgendaId().getDataLivre() + " já liberada.");
 	}
 
-	@Override
-	public List<Agenda> buscarTodos() {
-		return this.agendaRepository.findAll();
-	}
 
 	@Override
 	public Agenda buscarPorId(AgendaBase id) {
@@ -117,6 +116,13 @@ public class AgendaServiceImpl implements AgendaService {
 		agenda.setPaciente(paciente);
 		return this.salvar(agenda);
 
+	}
+
+	@Override
+	public List<Agenda> buscarTodos(FiltroAgendaDto filtro) {
+		List<Agenda> findAll = agendaRepository.findAll(Specification.where(AgendaSpecification.porNomeMedico(filtro.getNomeMedico())
+				.or(AgendaSpecification.porNomePaciente(filtro.getNomePaciente()))));
+		return findAll;
 	}
 
 }
