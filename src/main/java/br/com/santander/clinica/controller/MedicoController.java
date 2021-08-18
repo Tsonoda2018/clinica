@@ -54,6 +54,7 @@ public class MedicoController {
 		Link especialidade = linkTo(EspecialidadeController.class).slash(medicoSalvo.getEspecialidade().getid())
 				.withRel("especialidades");
 		MedicoDto medicoDto = MedicoDto.converte(medicoSalvo);
+		System.out.println("teste");
 		return ResponseEntity.created(uri).body(medicoDto.add(self).add(medicos).add(especialidade));
 	}
 
